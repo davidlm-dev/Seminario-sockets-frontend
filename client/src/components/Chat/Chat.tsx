@@ -37,6 +37,19 @@ const Chat: React.FC = () => {
       setMessageList(prev => [...prev, data]);
     });
 
+    // Escuchar cuando un usuario entra a la sala
+    socketRef.current.on('user_joined', (data: { room: string; user: string; message: string }) => {
+      setMessageList(prev => [
+        ...prev,
+        {
+          room: data.room,
+          author: 'Sistema',
+          message: data.message,
+          time: new Date().toLocaleTimeString(),
+        },
+      ]);
+    });
+
     socketRef.current.on('status', (data) => {
       console.debug('Estado recibido:', data);
       if (data.status === 'unauthorized') {
@@ -57,7 +70,7 @@ const Chat: React.FC = () => {
 
   const joinRoom = () => {    
     if (room) {
-      socketRef.current?.emit('join_room', room);
+      socketRef.current?.emit('join_room', room, user.name); // Enviar room y nombre de usuario
       setShowChat(true);
     }
   };
